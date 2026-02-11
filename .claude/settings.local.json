@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:fal.ai)",
+      "WebFetch(domain:docs.fal.ai)",
+      "WebFetch(domain:www.npmjs.com)",
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "Bash(dangerously-skip-permissions)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:blog.fal.ai)",
+      "WebFetch(domain:docs.ideogram.ai)",
+      "WebFetch(domain:developer.ideogram.ai)",
+      "Bash(npm create:*)",
+      "Bash(brew install:*)",
+      "Bash(node:*)",
+      "Bash(npm:*)",
+      "Bash(npx tailwindcss:*)",
+      "Bash(npx tsc:*)",
+      "Bash(pkill:*)"
+    ]
+  }
+}
