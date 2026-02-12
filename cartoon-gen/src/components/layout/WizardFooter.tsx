@@ -12,7 +12,7 @@ interface WizardFooterProps {
 
 const DEFAULT_LABELS = [
   "Continue",
-  "Generate Storyboard",
+  "Extract Characters",
   "Generate Character Images",
   "Generate Scene Images",
   "Generate Videos",

@@ -34,4 +34,13 @@ export const storyboardSchema = z.object({
   scenes: z.array(sceneSchema).min(1),
 });
 
+export const charactersOnlySchema = z.object({
+  title: z.string(),
+  characters: z.array(characterSchema).min(1),
+});
+
+export const scenesOnlySchema = z.object({
+  scenes: z.array(sceneSchema).min(1),
+});
+
 export type StoryboardSchemaType = z.infer<typeof storyboardSchema>;

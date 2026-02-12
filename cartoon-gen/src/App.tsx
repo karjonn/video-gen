@@ -2,9 +2,9 @@ import { useCallback } from "react";
 import { WizardShell } from "@/components/layout/WizardShell";
 import { ErrorBoundary } from "@/components/layout/ErrorBoundary";
 import { Toaster } from "@/components/ui/toaster";
-import { useProjectStore, createCharacterDef, createSceneDef } from "@/stores/project-store";
+import { useProjectStore, createCharacterDef } from "@/stores/project-store";
 import { useSettingsStore } from "@/stores/settings-store";
-import { initOpenAI, generateStoryboard } from "@/services/openai";
+import { initOpenAI, generateCharacters } from "@/services/openai";
 import { initFal } from "@/services/fal";
 import { buildCharacterPrompt } from "@/prompts/character-prompt";
 import { toast } from "@/hooks/use-toast";
@@ -24,7 +24,7 @@ function App() {
   const characters = useProjectStore((s) => s.characters);
   const scenes = useProjectStore((s) => s.scenes);
   const storyboardStatus = useProjectStore((s) => s.storyboardStatus);
-  const setStoryboard = useProjectStore((s) => s.setStoryboard);
+  const setCharactersOnly = useProjectStore((s) => s.setCharactersOnly);
   const setStoryboardStatus = useProjectStore((s) => s.setStoryboardStatus);
 
   const openaiKeyValid = useSettingsStore((s) => s.openaiKeyValid);
@@ -75,33 +75,30 @@ function App() {
         break;
 
       case 1:
-        // Generate storyboard
+        // Generate characters only (scenes generated separately on storyboard page)
         if (storyboardStatus === "done") {
           setCurrentStep(2);
           return;
         }
 
         if (testMode) {
-          // Use mock storyboard data
           const chars = MOCK_STORYBOARD.characters.map((c) => createCharacterDef(c));
-          const scns = MOCK_STORYBOARD.scenes.map((s) => createSceneDef(s));
-          setStoryboard(MOCK_STORYBOARD.title, chars, scns);
+          setCharactersOnly(MOCK_STORYBOARD.title, chars);
           setCurrentStep(2);
           return;
         }
 
         setStoryboardStatus("generating");
         try {
-          const result = await generateStoryboard(script);
+          const result = await generateCharacters(script);
           const chars = result.characters.map((c) => createCharacterDef(c));
-          const scns = result.scenes.map((s) => createSceneDef(s));
-          setStoryboard(result.title, chars, scns);
+          setCharactersOnly(result.title, chars);
           setCurrentStep(2);
         } catch (err) {
           setStoryboardStatus("error", (err as Error).message);
           toast({
             variant: "destructive",
-            title: "Storyboard generation failed",
+            title: "Character generation failed",
             description: (err as Error).message,
           });
         }
@@ -127,7 +124,6 @@ function App() {
         break;
 
       case 5:
-        // Download All handled by the VideoOutputStep
         break;
     }
   };

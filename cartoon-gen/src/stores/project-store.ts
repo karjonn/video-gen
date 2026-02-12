@@ -15,6 +15,8 @@ interface ProjectState {
   scenes: SceneDef[];
   storyboardStatus: GenerationStatus;
   storyboardError: string | null;
+  scenesGenStatus: GenerationStatus;
+  scenesGenError: string | null;
 
   setStoryboard: (
     title: string,
@@ -22,6 +24,10 @@ interface ProjectState {
     scenes: SceneDef[]
   ) => void;
   setStoryboardStatus: (status: GenerationStatus, error?: string) => void;
+  setCharactersOnly: (title: string, characters: CharacterDef[]) => void;
+  setScenesOnly: (scenes: SceneDef[]) => void;
+  setScenesGenStatus: (status: GenerationStatus, error?: string) => void;
+  clearScenes: () => void;
 
   updateCharacter: (id: string, updates: Partial<CharacterDef>) => void;
   addCharacter: (char: CharacterDef) => void;
@@ -43,6 +49,8 @@ const initialState = {
   scenes: [] as SceneDef[],
   storyboardStatus: "idle" as GenerationStatus,
   storyboardError: null as string | null,
+  scenesGenStatus: "idle" as GenerationStatus,
+  scenesGenError: null as string | null,
 };
 
 export const useProjectStore = create<ProjectState>()(
@@ -54,10 +62,30 @@ export const useProjectStore = create<ProjectState>()(
       setScript: (text) => set({ script: text }),
 
       setStoryboard: (title, characters, scenes) =>
-        set({ title, characters, scenes, storyboardStatus: "done", storyboardError: null }),
+        set({ title, characters, scenes, storyboardStatus: "done", storyboardError: null, scenesGenStatus: "done", scenesGenError: null }),
 
       setStoryboardStatus: (status, error) =>
         set({ storyboardStatus: status, storyboardError: error ?? null }),
+
+      setCharactersOnly: (title, characters) =>
+        set({
+          title,
+          characters,
+          scenes: [],
+          storyboardStatus: "done",
+          storyboardError: null,
+          scenesGenStatus: "idle",
+          scenesGenError: null,
+        }),
+
+      setScenesOnly: (scenes) =>
+        set({ scenes, scenesGenStatus: "done", scenesGenError: null }),
+
+      setScenesGenStatus: (status, error) =>
+        set({ scenesGenStatus: status, scenesGenError: error ?? null }),
+
+      clearScenes: () =>
+        set({ scenes: [], scenesGenStatus: "idle", scenesGenError: null }),
 
       updateCharacter: (id, updates) =>
         set((state) => ({
@@ -142,6 +170,10 @@ export const useProjectStore = create<ProjectState>()(
         if (state.storyboardStatus === "generating") {
           state.storyboardStatus = "idle";
           state.storyboardError = null;
+        }
+        if (state.scenesGenStatus === "generating") {
+          state.scenesGenStatus = "idle";
+          state.scenesGenError = null;
         }
       },
     }

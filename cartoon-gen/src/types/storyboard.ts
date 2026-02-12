@@ -59,3 +59,26 @@ export interface StoryboardJSON {
     videoMotionPrompt: string;
   }[];
 }
+
+export interface CharactersJSON {
+  title: string;
+  characters: {
+    id: string;
+    name: string;
+    role: string;
+    identityLock: IdentityLock;
+  }[];
+}
+
+export interface ScenesJSON {
+  scenes: {
+    index: number;
+    durationSeconds: number;
+    charactersPresent: string[];
+    setting: string;
+    action: string;
+    camera: string;
+    prompt: string;
+    videoMotionPrompt: string;
+  }[];
+}

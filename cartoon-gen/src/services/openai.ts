@@ -1,10 +1,12 @@
 import OpenAI from "openai";
 import {
-  STORYBOARD_SYSTEM_PROMPT,
-  buildStoryboardUserPrompt,
+  CHARACTER_SYSTEM_PROMPT,
+  buildCharacterUserPrompt,
+  SCENE_SYSTEM_PROMPT,
+  buildSceneUserPrompt,
 } from "@/prompts/storyboard-prompt";
-import { storyboardSchema } from "@/schemas/storyboard-schema";
-import type { StoryboardJSON } from "@/types/storyboard";
+import { charactersOnlySchema, scenesOnlySchema } from "@/schemas/storyboard-schema";
+import type { CharactersJSON, ScenesJSON, CharacterDef } from "@/types/storyboard";
 
 let client: OpenAI | null = null;
 
@@ -28,17 +30,17 @@ export async function validateOpenAIKey(apiKey: string): Promise<boolean> {
   }
 }
 
-export async function generateStoryboard(
+export async function generateCharacters(
   script: string
-): Promise<StoryboardJSON> {
+): Promise<CharactersJSON> {
   if (!client) throw new Error("OpenAI client not initialized");
 
   const response = await client.chat.completions.create({
     model: "gpt-4o",
     response_format: { type: "json_object" },
     messages: [
-      { role: "system", content: STORYBOARD_SYSTEM_PROMPT },
-      { role: "user", content: buildStoryboardUserPrompt(script) },
+      { role: "system", content: CHARACTER_SYSTEM_PROMPT },
+      { role: "user", content: buildCharacterUserPrompt(script) },
     ],
     temperature: 0.7,
     max_tokens: 4096,
@@ -48,5 +50,29 @@ export async function generateStoryboard(
   if (!content) throw new Error("Empty response from GPT-4o");
 
   const parsed = JSON.parse(content);
-  return storyboardSchema.parse(parsed);
+  return charactersOnlySchema.parse(parsed);
+}
+
+export async function generateScenes(
+  script: string,
+  characters: CharacterDef[]
+): Promise<ScenesJSON> {
+  if (!client) throw new Error("OpenAI client not initialized");
+
+  const response = await client.chat.completions.create({
+    model: "gpt-4o",
+    response_format: { type: "json_object" },
+    messages: [
+      { role: "system", content: SCENE_SYSTEM_PROMPT },
+      { role: "user", content: buildSceneUserPrompt(script, characters) },
+    ],
+    temperature: 0.7,
+    max_tokens: 4096,
+  });
+
+  const content = response.choices[0]?.message?.content;
+  if (!content) throw new Error("Empty response from GPT-4o");
+
+  const parsed = JSON.parse(content);
+  return scenesOnlySchema.parse(parsed);
 }
