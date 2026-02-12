@@ -29,6 +29,7 @@ interface ProjectState {
 
   updateScene: (index: number, updates: Partial<SceneDef>) => void;
   addScene: (scene: SceneDef) => void;
+  insertSceneAfter: (afterIndex: number) => void;
   removeScene: (index: number) => void;
 
   resetProject: () => void;
@@ -86,6 +87,24 @@ export const useProjectStore = create<ProjectState>()(
 
       addScene: (scene) =>
         set((state) => ({ scenes: [...state.scenes, scene] })),
+
+      insertSceneAfter: (afterIndex) =>
+        set((state) => {
+          const pos = state.scenes.findIndex((s) => s.index === afterIndex);
+          const newScene = createSceneDef({
+            index: 0,
+            durationSeconds: 10,
+            charactersPresent: [],
+            setting: "New setting",
+            action: "New action",
+            camera: "medium shot, eye level",
+            prompt: "",
+            videoMotionPrompt: "",
+          });
+          const newScenes = [...state.scenes];
+          newScenes.splice(pos + 1, 0, newScene);
+          return { scenes: newScenes.map((s, i) => ({ ...s, index: i + 1 })) };
+        }),
 
       removeScene: (index) =>
         set((state) => ({

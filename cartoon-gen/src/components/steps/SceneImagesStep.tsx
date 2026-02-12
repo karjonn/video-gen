@@ -1,6 +1,8 @@
 import { useEffect, useRef } from "react";
 import { useProjectStore } from "@/stores/project-store";
+import { useSettingsStore } from "@/stores/settings-store";
 import { generateAllScenes, generateSceneImage } from "@/services/scene-gen";
+import { generateMockImage, mockDelay } from "@/services/mock-data";
 import { ImageCard } from "@/components/shared/ImageCard";
 import { GenerationProgress } from "@/components/shared/GenerationProgress";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,6 +13,7 @@ export function SceneImagesStep() {
   const scenes = useProjectStore((s) => s.scenes);
   const characters = useProjectStore((s) => s.characters);
   const updateScene = useProjectStore((s) => s.updateScene);
+  const testMode = useSettingsStore((s) => s.testMode);
   const startedRef = useRef(false);
 
   const doneCount = scenes.filter((s) => s.imageStatus === "done").length;
@@ -26,6 +29,20 @@ export function SceneImagesStep() {
     idleScenes.forEach((s) =>
       updateScene(s.index, { imageStatus: "generating", imageError: null })
     );
+
+    if (testMode) {
+      idleScenes.forEach(async (s) => {
+        await mockDelay(1000 + Math.random() * 1000);
+        const mockUrl = generateMockImage(`Scene ${s.index}`, 800, 450, "#4c1d95");
+        updateScene(s.index, {
+          imageUrl: mockUrl,
+          imageSeed: Math.floor(Math.random() * 100000),
+          imageStatus: "done",
+          imageError: null,
+        });
+      });
+      return;
+    }
 
     generateAllScenes(
       idleScenes,
@@ -56,6 +73,18 @@ export function SceneImagesStep() {
       imageStatus: "generating",
       imageError: null,
     });
+
+    if (testMode) {
+      await mockDelay(1200);
+      const mockUrl = generateMockImage(`Scene ${sceneIndex}`, 800, 450, "#4c1d95");
+      updateScene(sceneIndex, {
+        imageUrl: mockUrl,
+        imageSeed: Math.floor(Math.random() * 100000),
+        imageStatus: "done",
+        imageError: null,
+      });
+      return;
+    }
 
     try {
       const result = await generateSceneImage(scene, characters);

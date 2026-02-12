@@ -1,16 +1,18 @@
 import { useEffect, useRef } from "react";
 import { useProjectStore } from "@/stores/project-store";
-import { generateAllCharacters } from "@/services/character-gen";
+import { useSettingsStore } from "@/stores/settings-store";
+import { generateAllCharacters, generateCharacterImage } from "@/services/character-gen";
+import { generateMockImage, mockDelay } from "@/services/mock-data";
 import { ImageCard } from "@/components/shared/ImageCard";
 import { GenerationProgress } from "@/components/shared/GenerationProgress";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
-import { generateCharacterImage } from "@/services/character-gen";
 
 export function CharacterImagesStep() {
   const characters = useProjectStore((s) => s.characters);
   const updateCharacter = useProjectStore((s) => s.updateCharacter);
+  const testMode = useSettingsStore((s) => s.testMode);
   const startedRef = useRef(false);
 
   const doneCount = characters.filter((c) => c.imageStatus === "done").length;
@@ -28,6 +30,21 @@ export function CharacterImagesStep() {
     idleChars.forEach((c) =>
       updateCharacter(c.id, { imageStatus: "generating", imageError: null })
     );
+
+    if (testMode) {
+      // Mock generation
+      idleChars.forEach(async (c) => {
+        await mockDelay(800 + Math.random() * 700);
+        const mockUrl = generateMockImage(`Character: ${c.name}`, 600, 800, "#7c3aed");
+        updateCharacter(c.id, {
+          imageUrl: mockUrl,
+          imageSeed: Math.floor(Math.random() * 100000),
+          imageStatus: "done",
+          imageError: null,
+        });
+      });
+      return;
+    }
 
     generateAllCharacters(
       idleChars,
@@ -56,6 +73,18 @@ export function CharacterImagesStep() {
       imageStatus: "generating",
       imageError: null,
     });
+
+    if (testMode) {
+      await mockDelay(1000);
+      const mockUrl = generateMockImage(`Character: ${char.name}`, 600, 800, "#7c3aed");
+      updateCharacter(charId, {
+        imageUrl: mockUrl,
+        imageSeed: Math.floor(Math.random() * 100000),
+        imageStatus: "done",
+        imageError: null,
+      });
+      return;
+    }
 
     try {
       const result = await generateCharacterImage(char);

@@ -5,6 +5,19 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Trash2 } from "lucide-react";
 
+const CAMERA_OPTIONS = [
+  "wide shot",
+  "medium shot",
+  "close-up",
+  "extreme close-up",
+  "over-the-shoulder",
+  "low angle",
+  "high angle",
+  "bird's eye view",
+  "POV shot",
+  "tracking shot",
+];
+
 export function StoryboardStep() {
   const title = useProjectStore((s) => s.title);
   const characters = useProjectStore((s) => s.characters);
@@ -14,6 +27,7 @@ export function StoryboardStep() {
   const removeCharacter = useProjectStore((s) => s.removeCharacter);
   const updateScene = useProjectStore((s) => s.updateScene);
   const addScene = useProjectStore((s) => s.addScene);
+  const insertSceneAfter = useProjectStore((s) => s.insertSceneAfter);
   const removeScene = useProjectStore((s) => s.removeScene);
 
   const handleAddCharacter = () => {
@@ -36,7 +50,7 @@ export function StoryboardStep() {
     );
   };
 
-  const handleAddScene = () => {
+  const handleAddSceneAtEnd = () => {
     const nextIndex =
       scenes.length > 0 ? Math.max(...scenes.map((s) => s.index)) + 1 : 1;
     addScene(
@@ -46,11 +60,21 @@ export function StoryboardStep() {
         charactersPresent: [],
         setting: "New setting",
         action: "New action",
-        camera: "medium shot, eye level",
+        camera: "medium shot",
         prompt: "",
         videoMotionPrompt: "",
       })
     );
+  };
+
+  const toggleCharacterInScene = (sceneIndex: number, charId: string) => {
+    const scene = scenes.find((s) => s.index === sceneIndex);
+    if (!scene) return;
+    const present = scene.charactersPresent.includes(charId);
+    const updated = present
+      ? scene.charactersPresent.filter((id) => id !== charId)
+      : [...scene.charactersPresent, charId];
+    updateScene(sceneIndex, { charactersPresent: updated });
   };
 
   return (
@@ -170,72 +194,114 @@ export function StoryboardStep() {
       <section className="space-y-3">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold">Scenes ({scenes.length})</h3>
-          <Button variant="outline" size="sm" onClick={handleAddScene}>
+          <Button variant="outline" size="sm" onClick={handleAddSceneAtEnd}>
             <Plus className="mr-1 h-3 w-3" />
             Add Scene
           </Button>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
           {scenes.map((scene) => (
-            <Card key={scene.index}>
-              <CardHeader className="pb-2">
-                <div className="flex items-start justify-between">
-                  <CardTitle className="text-sm">
-                    Scene {scene.index}
-                  </CardTitle>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-6 w-6 text-muted-foreground hover:text-destructive"
-                    onClick={() => removeScene(scene.index)}
-                  >
-                    <Trash2 className="h-3 w-3" />
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-1 text-xs">
-                <div>
-                  <span className="text-muted-foreground">Setting: </span>
-                  <EditableText
-                    value={scene.setting}
-                    onChange={(v) => updateScene(scene.index, { setting: v })}
-                  />
-                </div>
-                <div>
-                  <span className="text-muted-foreground">Action: </span>
-                  <EditableText
-                    value={scene.action}
-                    onChange={(v) => updateScene(scene.index, { action: v })}
-                  />
-                </div>
-                <div>
-                  <span className="text-muted-foreground">Camera: </span>
-                  <EditableText
-                    value={scene.camera}
-                    onChange={(v) => updateScene(scene.index, { camera: v })}
-                  />
-                </div>
-                <div>
-                  <span className="text-muted-foreground">Characters: </span>
-                  <span>
-                    {scene.charactersPresent
-                      .map(
-                        (cid) =>
-                          characters.find((c) => c.id === cid)?.name || cid
-                      )
-                      .join(", ") || "None"}
-                  </span>
-                </div>
-                <div className="pt-1">
-                  <span className="text-muted-foreground">Prompt: </span>
-                  <EditableText
-                    value={scene.prompt}
-                    onChange={(v) => updateScene(scene.index, { prompt: v })}
-                    multiline
-                  />
-                </div>
-              </CardContent>
-            </Card>
+            <div key={scene.index}>
+              <Card>
+                <CardHeader className="pb-2">
+                  <div className="flex items-start justify-between">
+                    <CardTitle className="text-sm">
+                      Scene {scene.index}
+                    </CardTitle>
+                    <div className="flex gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 text-muted-foreground hover:text-purple-400"
+                        title="Insert scene after this one"
+                        onClick={() => insertSceneAfter(scene.index)}
+                      >
+                        <Plus className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 text-muted-foreground hover:text-destructive"
+                        onClick={() => removeScene(scene.index)}
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-2 text-xs">
+                  <div>
+                    <span className="text-muted-foreground">Setting: </span>
+                    <EditableText
+                      value={scene.setting}
+                      onChange={(v) => updateScene(scene.index, { setting: v })}
+                    />
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Action: </span>
+                    <EditableText
+                      value={scene.action}
+                      onChange={(v) => updateScene(scene.index, { action: v })}
+                    />
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Camera: </span>
+                    <select
+                      value={scene.camera}
+                      onChange={(e) =>
+                        updateScene(scene.index, { camera: e.target.value })
+                      }
+                      className="ml-1 rounded border border-border bg-background px-2 py-0.5 text-xs text-foreground"
+                    >
+                      {CAMERA_OPTIONS.map((opt) => (
+                        <option key={opt} value={opt}>
+                          {opt}
+                        </option>
+                      ))}
+                      {!CAMERA_OPTIONS.includes(scene.camera) && (
+                        <option value={scene.camera}>{scene.camera}</option>
+                      )}
+                    </select>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground block mb-1">Characters:</span>
+                    <div className="flex flex-wrap gap-2">
+                      {characters.map((char) => {
+                        const isPresent = scene.charactersPresent.includes(char.id);
+                        return (
+                          <label
+                            key={char.id}
+                            className={`flex cursor-pointer items-center gap-1.5 rounded-md border px-2 py-1 text-xs transition-colors ${
+                              isPresent
+                                ? "border-purple-500 bg-purple-500/20 text-purple-200"
+                                : "border-border text-muted-foreground hover:border-muted-foreground/50"
+                            }`}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={isPresent}
+                              onChange={() =>
+                                toggleCharacterInScene(scene.index, char.id)
+                              }
+                              className="sr-only"
+                            />
+                            {char.name}
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  <div className="pt-1">
+                    <span className="text-muted-foreground">Prompt: </span>
+                    <EditableText
+                      value={scene.prompt}
+                      onChange={(v) => updateScene(scene.index, { prompt: v })}
+                      multiline
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           ))}
         </div>
       </section>

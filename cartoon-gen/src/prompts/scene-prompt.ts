@@ -5,11 +5,17 @@ export function buildScenePrompt(
   scene: SceneDef,
   characters: CharacterDef[]
 ): string {
-  const charDescriptions = characters
-    .filter((c) => scene.charactersPresent.includes(c.id))
-    .map((c) => {
+  const presentChars = characters.filter((c) =>
+    scene.charactersPresent.includes(c.id)
+  );
+
+  // Describe characters by distinctive visual features so the model
+  // matches each reference image to the right person in the scene
+  const charDescriptions = presentChars
+    .map((c, i) => {
       const id = c.identityLock;
-      return `${c.name} (${id.age}-year-old ${id.ethnicity} ${c.role}, ${id.skinTone} skin, ${id.hair}, wearing ${id.outfit}, ${id.faceNotes})`;
+      const refLabel = presentChars.length > 1 ? ` (reference ${i + 1})` : "";
+      return `a ${id.age}-year-old ${id.ethnicity} ${c.role} wearing ${id.outfit}, ${id.hair} hair, ${id.skinTone} skin${refLabel}`;
     })
     .join("; ");
 
@@ -21,23 +27,8 @@ export function buildScenePrompt(
     charDescriptions
       ? `Characters present: ${charDescriptions}.`
       : "No characters in this scene.",
-    "Use the same character identity as the reference image.",
+    "Use the same character identity as the reference image(s).",
     "Maintain consistent character appearance across all scenes.",
-  ].join(" ");
-}
-
-export function buildCharacterEditPrompt(
-  scene: SceneDef,
-  character: CharacterDef
-): string {
-  const id = character.identityLock;
-  return [
-    GLOBAL_STYLE_BLOCK,
-    `Add ${character.name} to this scene.`,
-    `${character.name} is a ${id.age}-year-old ${id.ethnicity} ${character.role} with ${id.skinTone} skin, ${id.hair}, wearing ${id.outfit}.`,
-    `Face: ${id.faceNotes}.`,
-    `Action in scene: ${scene.action}.`,
-    "Use the same character identity as the reference image.",
-    "Blend naturally with the existing scene lighting and perspective.",
+    "Ultra-sharp detail, highly detailed faces, 4K quality, crisp clean lines.",
   ].join(" ");
 }

@@ -10,6 +10,7 @@ interface WizardShellProps {
   currentStep: number;
   onBack: () => void;
   onNext: () => void;
+  onStepClick: (step: number) => void;
   canGoNext: boolean;
   isLoading?: boolean;
   nextLabel?: string;
@@ -20,6 +21,7 @@ export function WizardShell({
   currentStep,
   onBack,
   onNext,
+  onStepClick,
   canGoNext,
   isLoading,
   nextLabel,
@@ -29,11 +31,14 @@ export function WizardShell({
   return (
     <div className="flex min-h-screen flex-col bg-background">
       {/* Header */}
-      <header className="flex items-center justify-between border-b border-border px-6 py-3">
-        <h1 className="text-lg font-bold tracking-tight">CartoonGen</h1>
+      <header className="flex items-center justify-between border-b border-purple-900/40 bg-purple-950/30 px-6 py-3">
+        <h1 className="text-lg font-bold tracking-tight text-purple-100">
+          CartoonGen
+        </h1>
         <Button
           variant="ghost"
           size="sm"
+          className="text-purple-300 hover:text-purple-100 hover:bg-purple-900/30"
           onClick={() => {
             if (confirm("Reset project? This will clear all progress.")) {
               resetProject();
@@ -46,7 +51,7 @@ export function WizardShell({
       </header>
 
       {/* Step indicator */}
-      <StepIndicator currentStep={currentStep} />
+      <StepIndicator currentStep={currentStep} onStepClick={onStepClick} />
 
       {/* Content */}
       <main className="flex-1 overflow-auto px-6 py-4">{children}</main>

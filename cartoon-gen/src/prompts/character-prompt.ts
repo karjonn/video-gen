@@ -15,7 +15,9 @@ export function buildCharacterPrompt(character: CharacterDef): string {
       : "",
     `Face: ${id.faceNotes}.`,
     "Standing in a neutral friendly pose, facing slightly to the right, full body visible from head to toe.",
-    "Clean background, character centered, high detail on face and clothing.",
+    "Clean background, character centered.",
+    "Ultra-sharp detail, highly detailed face and eyes, 4K quality render, sharp focus on facial features.",
+    "3D animated Pixar-quality character, NOT photorealistic, cartoon stylized, crisp clean lines.",
     "This character must look identical in every scene.",
   ]
     .filter(Boolean)

@@ -1,19 +1,31 @@
+import { useEffect } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { useProjectStore } from "@/stores/project-store";
+import { useSettingsStore } from "@/stores/settings-store";
+import { MOCK_SCRIPT } from "@/services/mock-data";
 import { Loader2 } from "lucide-react";
 
 export function ScriptInputStep() {
   const script = useProjectStore((s) => s.script);
   const setScript = useProjectStore((s) => s.setScript);
   const storyboardStatus = useProjectStore((s) => s.storyboardStatus);
+  const testMode = useSettingsStore((s) => s.testMode);
+
+  // Auto-fill with mock script in test mode
+  useEffect(() => {
+    if (testMode && !script) {
+      setScript(MOCK_SCRIPT);
+    }
+  }, [testMode]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="mx-auto max-w-2xl space-y-4">
       <div className="space-y-2">
         <h2 className="text-2xl font-bold">Nursery Rhyme Script</h2>
         <p className="text-sm text-muted-foreground">
-          Paste the full nursery rhyme lyrics below. The AI will analyze it and
-          generate a storyboard with characters and scenes.
+          {testMode
+            ? "Test mode: A sample nursery rhyme has been pre-filled. You can edit it or just proceed."
+            : "Paste the full nursery rhyme lyrics below. The AI will analyze it and generate a storyboard with characters and scenes."}
         </p>
       </div>
 

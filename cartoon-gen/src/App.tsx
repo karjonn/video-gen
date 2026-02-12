@@ -8,6 +8,7 @@ import { initOpenAI, generateStoryboard } from "@/services/openai";
 import { initFal } from "@/services/fal";
 import { buildCharacterPrompt } from "@/prompts/character-prompt";
 import { toast } from "@/hooks/use-toast";
+import { MOCK_STORYBOARD } from "@/services/mock-data";
 
 import { ApiKeysStep } from "@/components/steps/ApiKeysStep";
 import { ScriptInputStep } from "@/components/steps/ScriptInputStep";
@@ -30,6 +31,7 @@ function App() {
   const falKeyValid = useSettingsStore((s) => s.falKeyValid);
   const openaiKey = useSettingsStore((s) => s.openaiKey);
   const falKey = useSettingsStore((s) => s.falKey);
+  const testMode = useSettingsStore((s) => s.testMode);
 
   const canGoNext = useCallback((): boolean => {
     switch (currentStep) {
@@ -56,22 +58,38 @@ function App() {
     }
   }, [currentStep, openaiKeyValid, falKeyValid, script, storyboardStatus, characters, scenes]);
 
+  const handleStepClick = (step: number) => {
+    if (step < currentStep) {
+      setCurrentStep(step);
+    }
+  };
+
   const handleNext = async () => {
     switch (currentStep) {
       case 0:
-        // Initialize API clients
-        initOpenAI(openaiKey);
-        initFal(falKey);
+        if (!testMode) {
+          initOpenAI(openaiKey);
+          initFal(falKey);
+        }
         setCurrentStep(1);
         break;
 
       case 1:
         // Generate storyboard
         if (storyboardStatus === "done") {
-          // Already generated, just advance
           setCurrentStep(2);
           return;
         }
+
+        if (testMode) {
+          // Use mock storyboard data
+          const chars = MOCK_STORYBOARD.characters.map((c) => createCharacterDef(c));
+          const scns = MOCK_STORYBOARD.scenes.map((s) => createSceneDef(s));
+          setStoryboard(MOCK_STORYBOARD.title, chars, scns);
+          setCurrentStep(2);
+          return;
+        }
+
         setStoryboardStatus("generating");
         try {
           const result = await generateStoryboard(script);
@@ -128,6 +146,7 @@ function App() {
         currentStep={currentStep}
         onBack={handleBack}
         onNext={handleNext}
+        onStepClick={handleStepClick}
         canGoNext={canGoNext()}
         isLoading={isLoading}
       >
