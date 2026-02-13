@@ -32,13 +32,17 @@ OUTPUT FORMAT (strict JSON, no markdown):
   ]
 }`;
 
-export function buildCharacterUserPrompt(script: string): string {
+export function buildCharacterUserPrompt(script: string, userNotes?: string): string {
+  const notesBlock = userNotes?.trim()
+    ? `\n\nADDITIONAL NOTES FROM THE PRODUCER:\n---\n${userNotes.trim()}\n---\nIncorporate these notes into your character designs where applicable.`
+    : "";
+
   return `Extract all characters from the following nursery rhyme. Create detailed identity descriptions for each character.
 
 NURSERY RHYME SCRIPT:
 ---
 ${script}
----
+---${notesBlock}
 
 Remember:
 - All characters must be Indian
@@ -77,7 +81,8 @@ OUTPUT FORMAT (strict JSON, no markdown):
 
 export function buildSceneUserPrompt(
   script: string,
-  characters: CharacterDef[]
+  characters: CharacterDef[],
+  userNotes?: string
 ): string {
   const charSummary = characters.map((c) => ({
     id: c.id,
@@ -85,6 +90,10 @@ export function buildSceneUserPrompt(
     role: c.role,
     identityLock: c.identityLock,
   }));
+
+  const notesBlock = userNotes?.trim()
+    ? `\n\nADDITIONAL NOTES FROM THE PRODUCER:\n---\n${userNotes.trim()}\n---\nIncorporate these notes into your scene designs where applicable.`
+    : "";
 
   return `Create a scene-by-scene storyboard for the following nursery rhyme using ONLY the approved characters below.
 
@@ -96,7 +105,7 @@ ${JSON.stringify(charSummary, null, 2)}
 NURSERY RHYME SCRIPT:
 ---
 ${script}
----
+---${notesBlock}
 
 Remember:
 - Only use character IDs from the approved list above

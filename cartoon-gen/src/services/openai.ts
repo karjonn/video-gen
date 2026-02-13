@@ -31,7 +31,8 @@ export async function validateOpenAIKey(apiKey: string): Promise<boolean> {
 }
 
 export async function generateCharacters(
-  script: string
+  script: string,
+  userNotes?: string
 ): Promise<CharactersJSON> {
   if (!client) throw new Error("OpenAI client not initialized");
 
@@ -40,7 +41,7 @@ export async function generateCharacters(
     response_format: { type: "json_object" },
     messages: [
       { role: "system", content: CHARACTER_SYSTEM_PROMPT },
-      { role: "user", content: buildCharacterUserPrompt(script) },
+      { role: "user", content: buildCharacterUserPrompt(script, userNotes) },
     ],
     temperature: 0.7,
     max_tokens: 4096,
@@ -55,7 +56,8 @@ export async function generateCharacters(
 
 export async function generateScenes(
   script: string,
-  characters: CharacterDef[]
+  characters: CharacterDef[],
+  userNotes?: string
 ): Promise<ScenesJSON> {
   if (!client) throw new Error("OpenAI client not initialized");
 
@@ -64,7 +66,7 @@ export async function generateScenes(
     response_format: { type: "json_object" },
     messages: [
       { role: "system", content: SCENE_SYSTEM_PROMPT },
-      { role: "user", content: buildSceneUserPrompt(script, characters) },
+      { role: "user", content: buildSceneUserPrompt(script, characters, userNotes) },
     ],
     temperature: 0.7,
     max_tokens: 4096,

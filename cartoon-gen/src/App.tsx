@@ -27,6 +27,7 @@ function App() {
   const setCharactersOnly = useProjectStore((s) => s.setCharactersOnly);
   const setStoryboardStatus = useProjectStore((s) => s.setStoryboardStatus);
 
+  const userNotes = useProjectStore((s) => s.userNotes);
   const openaiKeyValid = useSettingsStore((s) => s.openaiKeyValid);
   const falKeyValid = useSettingsStore((s) => s.falKeyValid);
   const openaiKey = useSettingsStore((s) => s.openaiKey);
@@ -90,7 +91,7 @@ function App() {
 
         setStoryboardStatus("generating");
         try {
-          const result = await generateCharacters(script);
+          const result = await generateCharacters(script, userNotes);
           const chars = result.characters.map((c) => createCharacterDef(c));
           setCharactersOnly(result.title, chars);
           setCurrentStep(2);

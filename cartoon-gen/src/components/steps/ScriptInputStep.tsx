@@ -8,6 +8,8 @@ import { Loader2 } from "lucide-react";
 export function ScriptInputStep() {
   const script = useProjectStore((s) => s.script);
   const setScript = useProjectStore((s) => s.setScript);
+  const userNotes = useProjectStore((s) => s.userNotes);
+  const setUserNotes = useProjectStore((s) => s.setUserNotes);
   const storyboardStatus = useProjectStore((s) => s.storyboardStatus);
   const testMode = useSettingsStore((s) => s.testMode);
 
@@ -37,6 +39,23 @@ export function ScriptInputStep() {
         disabled={storyboardStatus === "generating"}
         className="font-mono text-sm"
       />
+
+      <div className="space-y-2">
+        <label className="text-sm font-medium text-foreground">
+          Producer Notes <span className="text-muted-foreground font-normal">(optional)</span>
+        </label>
+        <p className="text-xs text-muted-foreground">
+          Add any criteria, style preferences, or specific instructions for character and scene generation.
+        </p>
+        <Textarea
+          value={userNotes}
+          onChange={(e) => setUserNotes(e.target.value)}
+          placeholder={`e.g., "Make all characters look like clay figurines", "Set everything in a village during Diwali", "The main child should wear a red outfit"...`}
+          rows={4}
+          disabled={storyboardStatus === "generating"}
+          className="text-sm"
+        />
+      </div>
 
       {storyboardStatus === "generating" && (
         <div className="flex items-center gap-2 text-sm text-muted-foreground">

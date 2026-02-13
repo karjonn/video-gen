@@ -42,6 +42,7 @@ export function StoryboardStep() {
   const setScenesOnly = useProjectStore((s) => s.setScenesOnly);
   const setScenesGenStatus = useProjectStore((s) => s.setScenesGenStatus);
   const clearScenes = useProjectStore((s) => s.clearScenes);
+  const userNotes = useProjectStore((s) => s.userNotes);
   const testMode = useSettingsStore((s) => s.testMode);
 
   const isGeneratingChars = storyboardStatus === "generating";
@@ -109,7 +110,7 @@ export function StoryboardStep() {
     }
 
     try {
-      const result = await generateCharacters(script);
+      const result = await generateCharacters(script, userNotes);
       const chars = result.characters.map((c) => createCharacterDef(c));
       setCharactersOnly(result.title, chars);
     } catch (err) {
@@ -137,7 +138,7 @@ export function StoryboardStep() {
     }
 
     try {
-      const result = await generateScenes(script, characters);
+      const result = await generateScenes(script, characters, userNotes);
       const scns = result.scenes.map((s) => createSceneDef(s));
       setScenesOnly(scns);
     } catch (err) {

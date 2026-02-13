@@ -9,6 +9,8 @@ interface ProjectState {
 
   script: string;
   setScript: (text: string) => void;
+  userNotes: string;
+  setUserNotes: (text: string) => void;
 
   title: string;
   characters: CharacterDef[];
@@ -44,6 +46,7 @@ interface ProjectState {
 const initialState = {
   currentStep: 0,
   script: "",
+  userNotes: "",
   title: "",
   characters: [] as CharacterDef[],
   scenes: [] as SceneDef[],
@@ -60,6 +63,7 @@ export const useProjectStore = create<ProjectState>()(
 
       setCurrentStep: (step) => set({ currentStep: step }),
       setScript: (text) => set({ script: text }),
+      setUserNotes: (text) => set({ userNotes: text }),
 
       setStoryboard: (title, characters, scenes) =>
         set({ title, characters, scenes, storyboardStatus: "done", storyboardError: null, scenesGenStatus: "done", scenesGenError: null }),
