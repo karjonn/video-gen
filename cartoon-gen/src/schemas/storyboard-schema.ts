@@ -5,7 +5,7 @@ const identityLockSchema = z.object({
   skinTone: z.string(),
   hair: z.string(),
   outfit: z.string(),
-  accessories: z.array(z.string()),
+  accessories: z.array(z.string()).optional().default([]),
   age: z.string(),
   faceNotes: z.string(),
 });

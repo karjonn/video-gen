@@ -2,14 +2,13 @@ import type { CharacterDef } from "@/types/storyboard";
 
 // ── Character extraction ────────────────────────────────────────────
 
-export const CHARACTER_SYSTEM_PROMPT = `You are a children's animation character designer. Given a nursery rhyme script, extract ALL characters and create detailed identity descriptions.
+export const CHARACTER_SYSTEM_PROMPT = `You are a children's animation character designer. Given a nursery rhyme script, extract ALL characters and create identity descriptions.
 
 RULES:
 1. All characters MUST be Indian (Indian names, Indian ethnicity, warm brown skin tones, culturally appropriate clothing).
-2. Visual style: feature-quality family 3D animation (like Pixar/Disney quality but Indian characters).
-3. Each character must have a detailed, FIXED identity lock: specific hair style, specific outfit, specific accessories. These do NOT change.
+2. Visual style: 3D animated style with crisp clean lines, sharp focus, high detail, clean render.
+3. Each character must have a FIXED identity lock with a specific outfit color that distinguishes them from other characters. Give each character a different shirt/outfit color.
 4. Include characters explicitly mentioned AND implied (e.g., if a mother serves food, include the mother).
-5. Each character needs distinctive visual features (unique outfit color, hair style, accessories) so they can be easily distinguished in scenes.
 
 OUTPUT FORMAT (strict JSON, no markdown):
 {
@@ -22,9 +21,9 @@ OUTPUT FORMAT (strict JSON, no markdown):
       "identityLock": {
         "ethnicity": "Indian",
         "skinTone": "warm brown (specify shade)",
-        "hair": "specific hair description",
-        "outfit": "specific outfit description with DISTINCTIVE colors",
-        "accessories": ["list of accessories"],
+        "hair": "hair description",
+        "outfit": "outfit description with a DISTINCTIVE color (e.g., bright red kurta, blue saree)",
+        "accessories": [],
         "age": "number as string",
         "faceNotes": "specific facial features"
       }
@@ -37,7 +36,7 @@ export function buildCharacterUserPrompt(script: string, userNotes?: string): st
     ? `\n\nADDITIONAL NOTES FROM THE PRODUCER:\n---\n${userNotes.trim()}\n---\nIncorporate these notes into your character designs where applicable.`
     : "";
 
-  return `Extract all characters from the following nursery rhyme. Create detailed identity descriptions for each character.
+  return `Extract all characters from the following nursery rhyme. Create identity descriptions for each character.
 
 NURSERY RHYME SCRIPT:
 ---
@@ -46,7 +45,7 @@ ${script}
 
 Remember:
 - All characters must be Indian
-- Give each character distinctive visual features (unique outfit colors, hair styles, accessories)
+- Give each character a different, distinctive outfit/shirt color so they can be told apart
 - Return valid JSON only, no markdown code fences`;
 }
 
@@ -56,12 +55,12 @@ export const SCENE_SYSTEM_PROMPT = `You are a children's animation storyboard ar
 
 RULES:
 1. Only use character IDs from the provided character list.
-2. Create between 6-10 scenes that cover the entire nursery rhyme.
+2. Create as many scenes as needed to cover the entire nursery rhyme.
 3. Each scene must specify exactly which characters are present using their character IDs.
-4. Scene prompts should be detailed enough for an image generation model to produce a coherent image.
-5. In each scene prompt, describe characters by their DISTINCTIVE VISUAL FEATURES (outfit color, hair style, accessories) rather than just by name. This is critical for image generation.
+4. In each scene prompt, describe characters by their distinctive feature, e.g. "Rogan (red shirt kid)" or "Amma (green saree mother)". This is critical for image generation.
+5. Scene prompts should be detailed enough for an image generation model to produce a coherent image.
 6. Video motion prompts should describe subtle, gentle movements appropriate for young children's content.
-7. Camera angles should be simple: medium shots, wide shots, close-ups. No extreme or disorienting angles.
+7. Camera angles should be simple: medium shots, wide shots, close-ups.
 
 OUTPUT FORMAT (strict JSON, no markdown):
 {
@@ -73,7 +72,7 @@ OUTPUT FORMAT (strict JSON, no markdown):
       "setting": "specific location description",
       "action": "what happens in this scene",
       "camera": "shot type and angle",
-      "prompt": "FULL detailed image generation prompt including style, setting, characters described by distinctive features, action, and camera",
+      "prompt": "FULL detailed image generation prompt including style, setting, characters described by distinctive outfit color, action, and camera",
       "videoMotionPrompt": "subtle motion description for video generation"
     }
   ]
@@ -109,8 +108,8 @@ ${script}
 
 Remember:
 - Only use character IDs from the approved list above
-- Include the global style in each scene prompt: "feature-quality family 3D animation look, warm cinematic lighting, soft global illumination, gentle color harmony, whimsical fairytale atmosphere"
-- Each scene prompt must describe characters by their distinctive visual features (outfit color, hair, accessories) not just by name
+- Describe each character by their distinctive outfit color in the prompt, e.g. "Rogan (red shirt kid)", "Amma (green saree mother)"
+- Include the style in each scene prompt: "3D animated style, crisp clean lines, sharp focus, high detail, clean render"
 - Return valid JSON only, no markdown code fences`;
 }
 

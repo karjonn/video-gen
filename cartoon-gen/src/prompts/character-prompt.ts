@@ -6,10 +6,7 @@ export function buildCharacterPrompt(character: CharacterDef): string {
   return [
     `${character.name}, ${character.role}, age ${id.age}.`,
     `Skin: ${id.skinTone}. Hair: ${id.hair}. Outfit: ${id.outfit}.`,
-    id.accessories.length > 0 ? `Accessories: ${id.accessories.join(", ")}.` : "",
     `Face: ${id.faceNotes}.`,
-    "Full body image, white background, Pixar style 3D animation.",
-  ]
-    .filter(Boolean)
-    .join(" ");
+    "Full body image, white background, 3D animated style.",
+  ].join(" ");
 }
