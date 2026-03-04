@@ -23,7 +23,7 @@ export async function generateSceneVideo(
     {
       prompt,
       image_url: scene.imageUrl,
-      duration: "10",
+      duration: String(scene.durationSeconds === 5 ? 5 : 10),
       negative_prompt:
         "blur, distort, low quality, rapid motion, warping, morphing",
       cfg_scale: 0.5,

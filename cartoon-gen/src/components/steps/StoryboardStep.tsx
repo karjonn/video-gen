@@ -442,6 +442,21 @@ export function StoryboardStep() {
                         })}
                       </div>
                     </div>
+                    <div>
+                      <span className="text-muted-foreground">Duration: </span>
+                      <select
+                        value={scene.durationSeconds}
+                        onChange={(e) =>
+                          updateScene(scene.index, {
+                            durationSeconds: Number(e.target.value),
+                          })
+                        }
+                        className="ml-1 rounded border border-border bg-background px-2 py-0.5 text-xs text-foreground"
+                      >
+                        <option value={5}>5s</option>
+                        <option value={10}>10s</option>
+                      </select>
+                    </div>
                     <div className="pt-1">
                       <span className="text-muted-foreground">Prompt: </span>
                       <EditableText
